@@ -1,5 +1,6 @@
 window.addEventListener("DOMContentLoaded", function(){
     InitIndexedDB();
+    InitInputHandler();
 })
 
 function InitIndexedDB() {
@@ -24,21 +25,11 @@ function InitIndexedDB() {
          * Represents the object store for dataObj. I'm using ssn for keyPath for unique obj
          * @type {IDBObjectStore}
          */
-        const objData = dbCache.createObjectStore("dataObj", { keyPath: "key" });
+        const objData = dbCache.createObjectStore("dataObj");
 
         objData.createIndex("id", "id", {unique: true});
         objData.createIndex("name", "name", {unique: false});
-        objData.createIndex("desc", "desc", {unique: false});
-
-        objData.transaction.oncomplete = (evt) => {
-            const objDataStore = dbCache.transaction("dataObj", "readwrite").objectStore("dataObj");
-
-            
-            DataList.forEach((val) => {
-                objDataStore.add(val);
-            });
-        }
-        
+        objData.createIndex("desc", "desc", {unique: false});        
     }
 
     dbRequest.onsuccess = () => {
@@ -62,6 +53,7 @@ function AddItem(key, val) {
         request.onsuccess = ()=> {
             console.log(`New data added, data: ${request.result}`);
             console.log(objectStore.get(key));
+            // alert(request.result);
         }
     
         request.onerror = (err)=> {
@@ -70,7 +62,6 @@ function AddItem(key, val) {
     }
 
 }
-
 
 function GetItem(key) {
     const DBNAME = "ADHIDB_V1";
@@ -93,4 +84,14 @@ function GetItem(key) {
             console.error(`Error to get data: ${err}`)
         }
     }
+}
+
+function InitInputHandler() {
+    let submitBtn = document.getElementById("submit");
+    let keyInput = document.getElementById("key");
+    let valueInput = document.getElementById("value");
+
+    submitBtn.addEventListener("click", function(){
+        AddItem(keyInput.value, valueInput.value);
+    })
 }
